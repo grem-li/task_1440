@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  secret-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - CONN_MONGODB_URL=mongodb://root:pass1440@127.0.0.1:27017/
+    ports:
+      - "8080:8080"
+
+  secret-db:
+    image: mongo:latest
+    container_name: secret-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pass1440
+    network_mode: service:secret-app
+
+  tests:
+    build:
+      context: .
+      dockerfile: tests/Dockerfile
+    network_mode: service:secret-app
+    depends_on:
+      - secret-app
+      - secret-db

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  secret-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - CONN_MONGODB_URL=mongodb://root:pass1440@127.0.0.1:27017/
+    ports:
+      - "8080:8080"
+#      - "8443:443"
+
+#    volumes:
+#      - ../..:/workspaces:cached      
+#    network_mode: service:mongodb
+#    command: sleep infinity
+#    depends_on:
+#      - mongodb
+
+  secret-db:
+    image: mongo:latest
+    container_name: secret-db
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pass1440
+    network_mode: service:secret-app
+#    ports:
+#      - 27017:27017
+
+
+# Extra DB admin interface
+#  mongo-express:
+#    image: mongo-express
+#    restart: always
+#    ports:
+#      - 8081:8081
+#    environment:
+#      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+#      ME_CONFIG_MONGODB_ADMINPASSWORD: pass1440
+#      ME_CONFIG_MONGODB_URL: mongodb://root:pass1440@mongo:27017/
