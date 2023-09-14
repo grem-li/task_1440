@@ -1,4 +1,5 @@
 import hashlib
+from scryp import encrypt, decrypt
 
 
 def is_valid_pwd(pwd: str) -> bool:
@@ -15,3 +16,11 @@ def get_hash(string: str) -> str:
     Получаем хэш от строки
     """
     return hashlib.md5(string.encode("utf-8")).hexdigest()
+
+
+def encrypt_secret(string: str, pwd: str) -> str:
+    return encrypt(string, pwd)
+
+
+def decrypt_secret(string: str, pwd: str) -> str:
+    return decrypt(string, pwd)

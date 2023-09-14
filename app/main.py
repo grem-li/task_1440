@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from .tools import is_valid_pwd, get_hash
+from .tools import is_valid_pwd, get_hash, encrypt_secret, decrypt_secret
 
 
 app = FastAPI()
@@ -36,7 +36,7 @@ async def creare_secret_key(data: SecretInStruct) -> str:
         )
 
     # insert in db
-    item = {"secret": data.secret, "pwd_hash": get_hash(data.pwd), "retry_count": 4}
+    item = {"secret": encrypt_secret(data.secret, data.pwd), "pwd_hash": get_hash(data.pwd), "retry_count": 4}
     secret_key = secret_db.posts.insert_one(item).inserted_id
 
     return HTMLResponse(content=str(secret_key))
@@ -69,4 +69,4 @@ async def get_secret(secret_key: str, data: SecretGetStruct) -> str:
         return HTMLResponse(content="""Invalid body "pwd" """, status_code=403)  # Forbidden
 
     secret_db.posts.delete_many({"_id": ObjectId(secret_key)})
-    return HTMLResponse(content=str(item["secret"]))
+    return HTMLResponse(content=decrypt_secret(item["secret"], data.pwd))
